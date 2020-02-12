@@ -97,7 +97,14 @@ class InfectStatistic {
 
     }
 
-    public  static List<Result> initLog(String fileName,String date){
+    /**
+     *@描述  根据文件名读取相关日志文件，每次读取一行，将该行转化为Result类，最后返回Result集合
+     *@参数  String fileName,String date
+     *@返回值  List<Result>
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
+    public  static List<Result> initLog(String fileName){// ,String date
         Regular regular = new Regular();
         List<Result> list = new ArrayList<Result>();
         File file = new File(fileName);
@@ -131,28 +138,40 @@ class InfectStatistic {
                     }
                     //5、<省> 死亡 n人
                     else if(currentLine.matches(regular.regularFive)){
-                        list.add(getDeadResult());
+                        Result result = getDeadResult(currentLine);
+                        list.add(result);
                     }
                     //6、<省> 治愈 n人
                     else if(currentLine.matches(regular.regularSix)){
-                        list.add(getCureResult());
+                        Result result = getCureResult(currentLine);
+                        list.add(result);
                     }
                     //7、<省> 疑似患者 确诊感染 n人
                     else if(currentLine.matches(regular.regularSeven)){
-                        list.add(getSpToIpResult());
+                        Result result = getSpToIpResult(currentLine);
+                        list.add(result);
                     }
                     //8、<省> 排除 疑似患者 n人
                     else if(currentLine.matches(regular.regularEight)){
-                        list.add(getSpClearResult());
+                        Result result = getSpClearResult(currentLine);
+                        list.add(result);
                     }
                 }
 
             }catch (IOException e){
-
+                e.printStackTrace();
             }
         }
+        return list;
     }
 
+    /**
+     *@描述  当前行为 “<省> 新增 感染患者 n人”对应语句，将其转换为Result类，获得某省感染患者变化结果
+     *@参数  String currentLine 表示当前行
+     *@返回值  Reesult
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static Result getIpResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 新增");
@@ -167,6 +186,13 @@ class InfectStatistic {
         }
         return result;
     }
+    /**
+     *@描述  当前行为 “<省> 新增 疑似患者 n人”对应语句，将其转换为Result类，获得某省疑似患者变化结果
+     *@参数  String currentLine 表示当前行
+     *@返回值  Result
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static Result getSpResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 新增");
@@ -181,6 +207,13 @@ class InfectStatistic {
         }
         return result;
     }
+    /**
+     *@描述  当前行为 “<省> 治愈 n人”对应语句，将其转换为Result类，获得某省治愈患者变化结果
+     *@参数  String currentLine 当前行
+     *@返回值  Result
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static Result getCureResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 治愈");
@@ -196,6 +229,13 @@ class InfectStatistic {
         }
         return result;
     }
+    /**
+     *@描述  当前行为 “<省> 死亡 n人”对应语句，将其转换为Result类，获得某省死亡患者变化结果
+     *@参数  String currentLine
+     *@返回值  Result
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static Result getDeadResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 死亡");
@@ -211,6 +251,13 @@ class InfectStatistic {
         }
         return result;
     }
+    /**
+     *@描述 当前行为 “<省1> 感染患者 流入 <省2> n人”对应语句，将其转换为Result类，获得两省感染患者变化结果
+     *@参数 String currentLine 当前行
+     *@返回值  List<Result>
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static List<Result> getIpMoveResult(String currentLine){
         List<Result> resultList = new ArrayList<Result>();
         Pattern pattern1 = Pattern.compile("(.*) 感染患者");
@@ -229,7 +276,13 @@ class InfectStatistic {
         }
         return resultList;
     }
-
+    /**
+     *@描述 当前行为 “<省1> 疑似患者 流入 <省2> n人”对应语句，将其转换为Result类，获得两省疑似患者变化结果
+     *@参数  String currentLine
+     *@返回值  List<Result>
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static List<Result> getSpMoveResult(String currentLine){
         List<Result> resultList = new ArrayList<Result>();
         Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
@@ -248,6 +301,13 @@ class InfectStatistic {
         }
         return resultList;
     }
+    /**
+     *@描述 当前行为 “<省> 疑似患者 确诊感染 n人”对应语句，将其转换为Result类，获得某省疑似患者、感染患者变化结果
+     *@参数  String currentLine
+     *@返回值  Result
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static Result getSpToIpResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
@@ -263,6 +323,13 @@ class InfectStatistic {
         }
         return result;
     }
+    /**
+     *@描述  当前行为 “<省> 排除 疑似患者 n人”对应语句，将其转换为Result类，获得某省疑似患者变化结果
+     *@参数  String currentLine
+     *@返回值  Result
+     *@创建人  221701101林露
+     *@创建时间  2020/2/13
+     */
     public static Result getSpClearResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 排除");
