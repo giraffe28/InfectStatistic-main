@@ -12,7 +12,27 @@ import java.util.List;
 public class InfectStatisticTest {
 
     @org.junit.Test
-    public void initLog() {
+    public void parseLog() {
+       /* List<InfectStatistic.Result> list = InfectStatistic.parseLog("D:\\ListOut1.txt");
+        String resultString = "";
+        for (InfectStatistic.Result result:list
+             ) {
+            resultString += result.getResultString();
+        }
+        String correctString = "福建 感染患者2人 疑似患者0人 治愈0人 死亡0人"
+                +"福建 感染患者0人 疑似患者5人 治愈0人 死亡0人"
+                +"湖北 感染患者15人 疑似患者0人 治愈0人 死亡0人"
+                +"湖北 感染患者0人 疑似患者20人 治愈0人 死亡0人"
+                +"湖北 感染患者-2人 疑似患者0人 治愈0人 死亡0人"
+                +"福建 感染患者2人 疑似患者0人 治愈0人 死亡0人"
+                +"湖北 感染患者0人 疑似患者-3人 治愈0人 死亡0人"
+                +"福建 感染患者0人 疑似患者3人 治愈0人 死亡0人"
+                +"湖北 感染患者0人 疑似患者0人 治愈0人 死亡1人"
+                +"湖北 感染患者0人 疑似患者0人 治愈1人 死亡0人"
+                +"福建 感染患者1人 疑似患者-1人 治愈0人 死亡0人"
+                +"湖北 感染患者0人 疑似患者-2人 治愈0人 死亡0人";
+        Assert.assertEquals(correctString, resultString);
+ */
     }
 
     @org.junit.Test
@@ -104,9 +124,6 @@ public class InfectStatisticTest {
         Assert.assertEquals(correctResult.getResultString(), testResult.getResultString());
     }
 
-    @org.junit.Test
-    public void list() {
-    }
 
     @org.junit.Test
     public void getLogFiles() {
@@ -115,9 +132,24 @@ public class InfectStatisticTest {
     @org.junit.Test
     public void parseOptions() {
         String command1 = "java InfectStatistic list -date 2020-01-22 -log D:/log/ -out D:/output.txt";
-        String command2 = "java InfectStatistic list -date 2020-01-22 -log D:/log/ -out D:/output.txt";
-        String[] array1 = command1.split("\\s");
-        InfectStatistic.Parameters parameter = InfectStatistic.ParseOptions(array1);
-        Assert.assertEquals("log: D:/log/ out: D:/output.txt date: 2020-01-22 type: province: ", parameter.getParameterString());
+        String command2 = "java InfectStatistic list -date -log D:/log/ -out D:/output.txt";
+        String command3 = "java InfectStatistic list -log D:/log/ -out D:/output.txt";
+        String command4 = "java InfectStatistic list -log D:/log/ -out D:/output.txt -type ip sp -province 全国 浙江";
+        String command5 = "java InfectStatistic list -log D:/log/ -out D:/output.txt -province 全国 浙江 -type ip";
+        String[] array1 = command1.split("\\s+");
+        String[] array2 = command2.split("\\s+");
+        String[] array3 = command3.split("\\s+");
+        String[] array4 = command4.split("\\s+");
+        String[] array5 = command5.split("\\s+");
+        InfectStatistic.Parameters parameter1 = InfectStatistic.ParseOptions(array1);
+        InfectStatistic.Parameters parameter2 = InfectStatistic.ParseOptions(array2);
+        InfectStatistic.Parameters parameter3 = InfectStatistic.ParseOptions(array3);
+        InfectStatistic.Parameters parameter4 = InfectStatistic.ParseOptions(array4);
+        InfectStatistic.Parameters parameter5 = InfectStatistic.ParseOptions(array5);
+        Assert.assertEquals("log: D:/log/ out: D:/output.txt date: 2020-01-22 type: province: ", parameter1.getParameterString());
+        Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: province: ", parameter2.getParameterString());
+        Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: province: ", parameter3.getParameterString());
+        Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: ip sp province: 全国 浙江 ", parameter4.getParameterString());
+        Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: ip province: 全国 浙江 ", parameter5.getParameterString());
     }
 }

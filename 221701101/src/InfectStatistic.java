@@ -16,23 +16,50 @@ import java.util.regex.Pattern;
  * @since 2020/2/11
  */
 class InfectStatistic {
+    public static class Province{
+        public static String[] province= {"全国", "安徽", "澳门" ,"北京", "重庆", "福建","甘肃",
+                "广东", "广西", "贵州", "海南", "河北", "河南", "黑龙江", "湖北", "湖南", "吉林",
+                "江苏", "江西", "辽宁", "内蒙古", "宁夏", "青海", "山东", "山西", "陕西", "上海",
+                "四川", "台湾", "天津", "西藏", "香港", "新疆", "云南", "浙江"};
+        public static String getByIndex(int index){
+            return province[index];
+        }
+    }
+    static class ResultList{
+        List<Result> resultList;
+        public ResultList(){
+             for(int i = 0;i < 35;i++){
+                 Result result = new Result();
+                 result.setProvince(Province.getByIndex(i));
+             }
+        }
+    }
     static class Parameters {
-        String log;
-        String out;
-        String date;
+        String log = null;
+        String out = null;
+        String date = null;
         ArrayList<String> type = null;
         ArrayList<String> province = null;
+        String str1 = null;
+        String str2 = null;
+        String str3 = null;
+        int i = 0;
+        //仅为单元测试使用
         public String getParameterString() {
-            String str1 = "log: " + log + " " + "out: " + out + " " + "date: " + date + " ";
-            String str2 = "type: ";
-            String str3 = "province: ";
-            for(int i = 0;i < type.size();i++){
+            if(date != null) {
+                str1 = "log: " + log + " " + "out: " + out + " " + "date: " + date + " ";
+            }
+            else{
+                 str1 = "log: " + log + " " + "out: " + out + " " + "date: ";
+            }
+            for(i = 0,str2 = "type: ";i < type.size();i++){
                 str2 += type.get(i).toString() + " ";
             }
-            for(int i = 0;i < province.size();i++){
+            for(i = 0,str3 = "province: ";i < province.size();i++){
                 str3 += province.get(i).toString() + " ";
             }
-            return str1+str2+str3;
+            str1+=str2 + str3;
+            return str1;
         }
     }
 
@@ -103,23 +130,25 @@ class InfectStatistic {
      *@创建时间  2020/2/12
      */
     public static void main(String[] args) {
-        List<Result> resultList = new ArrayList<Result>();
-        list(args);
+        ResultList list = new ResultList();
+        //list.resultList
         Parameters param=ParseOptions(args);
 
     }
 
+
+
     /**
      *@描述  根据文件名读取相关日志文件，每次读取一行，将该行转化为Result类，最后返回Result集合
-     *@参数  String fileName,String date
+     *@参数  String fileName
      *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public  static List<Result> initLog(String fileName){// ,String date
+    public  static List<Result> parseLog(String filePath){// ,String date
         Regular regular = new Regular();
         List<Result> list = new ArrayList<Result>();
-        File file = new File(fileName);
+        File file = new File(filePath);
         if(file.isFile()){
             BufferedReader reader = null;
             try{
@@ -372,7 +401,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/12
      */
-    public static void list(String[] args){
+    /*public static void list(String[] args){
         Parameters param=ParseOptions(args);
         System.out.println(param.log);
         System.out.println(param.out);
@@ -389,7 +418,7 @@ class InfectStatistic {
         }catch (NullPointerException e){
             System.out.println("Catch NullPointerException");
         }
-    }
+    }*/
 
     /**
      *@描述 获得所有日志文件
@@ -422,32 +451,40 @@ class InfectStatistic {
                 parameters.out = args[i + 1];
                 i++;
             } else if (args[i].equals("-date")) {
-                if(i == args.length-1)
-                    parameters.date = "default";
-                else{
-                    if(args[i + 1].substring(0,1).equals("-"))
-                        parameters.date="default";
+                if (i == args.length - 1)
+                    //parameters.date = "default";
+                    continue;
+                else {
+                    if (args[i + 1].substring(0, 1).equals("-"))
+                        //parameters.date="default";
+                        continue;
                     else {
                         parameters.date = args[i + 1];
                         i++;
                     }
                 }
             } else if (args[i].equals("-type")) {
-                for (int j = ++i ; j < args.length; j++,i++) {
-                    if (!args[j].substring(0, 1).equals("-")) {
+                for (int j = i+1; j < args.length; j++) {
+                    if(!args[j].substring(0, 1).equals("-")) {
                         typeList.add(args[j]);
+                        i++;
                     }
+                    else
+                        break;
                 }
             } else if (args[i].equals("-province")) {
-                for (int j = ++i; j < args.length; j++,i++) {
-                    if (!args[j].substring(0, 1).equals("-")) {
+                for (int j = i+1; j < args.length; j++) {
+                    if(!args[j].substring(0, 1).equals("-")) {
                         provinceList.add(args[j]);
+                        i++;
                     }
+                    else
+                        break;
                 }
             }
         }
-        parameters.type=typeList;
-        parameters.province=provinceList;
+        parameters.type = typeList;
+        parameters.province = provinceList;
         return parameters;
     }
 }
