@@ -1,8 +1,8 @@
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-
-import java.lang.reflect.Array;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.io.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +22,18 @@ class InfectStatistic {
         String date;
         ArrayList<String> type = null;
         ArrayList<String> province = null;
+        public String getParameterString() {
+            String str1 = "log: " + log + " " + "out: " + out + " " + "date: " + date + " ";
+            String str2 = "type: ";
+            String str3 = "province: ";
+            for(int i = 0;i < type.size();i++){
+                str2 += type.get(i).toString() + " ";
+            }
+            for(int i = 0;i < province.size();i++){
+                str3 += province.get(i).toString() + " ";
+            }
+            return str1+str2+str3;
+        }
     }
 
     static class Regular{
@@ -266,14 +278,18 @@ class InfectStatistic {
         Matcher matcher1 = pattern1.matcher(currentLine);
         Matcher matcher2 = pattern2.matcher(currentLine);
         Matcher matcher3 = pattern3.matcher(currentLine);
+        Result result1 = new Result();
+        Result result2 = new Result();
         if(matcher1.find()&&matcher2.find()){
-            resultList.get(0).setProvince(matcher1.group(1));
-            resultList.get(1).setProvince(matcher2.group(1));
+            result1.setProvince(matcher1.group(1));
+            result2.setProvince(matcher2.group(1));
         }
         if(matcher3.find()){
-            resultList.get(0).setIp(-Integer.parseInt(matcher3.group(1)));
-            resultList.get(1).setIp(Integer.parseInt(matcher3.group(1)));
+            result1.setIp(-Integer.parseInt(matcher3.group(1)));
+            result2.setIp(Integer.parseInt(matcher3.group(1)));
         }
+        resultList.add(result1);
+        resultList.add(result2);
         return resultList;
     }
     /**
@@ -291,14 +307,18 @@ class InfectStatistic {
         Matcher matcher1 = pattern1.matcher(currentLine);
         Matcher matcher2 = pattern2.matcher(currentLine);
         Matcher matcher3 = pattern3.matcher(currentLine);
+        Result result1 = new Result();
+        Result result2 = new Result();
         if(matcher1.find()&&matcher2.find()){
-            resultList.get(0).setProvince(matcher1.group(1));
-            resultList.get(1).setProvince(matcher2.group(1));
+            result1.setProvince(matcher1.group(1));
+            result2.setProvince(matcher2.group(1));
         }
         if(matcher3.find()){
-            resultList.get(0).setSp(-Integer.parseInt(matcher3.group(1)));
-            resultList.get(1).setSp(Integer.parseInt(matcher3.group(1)));
+            result1.setSp(-Integer.parseInt(matcher3.group(1)));
+            result2.setSp(Integer.parseInt(matcher3.group(1)));
         }
+        resultList.add(result1);
+        resultList.add(result2);
         return resultList;
     }
     /**
