@@ -26,12 +26,32 @@ class InfectStatistic {
         }
     }
     static class ResultList{
-        List<Result> resultList;
-        public ResultList(){
+        List<Result> resultList = new ArrayList<Result>();
+        ResultList(){
              for(int i = 0;i < 35;i++){
                  Result result = new Result();
                  result.setProvince(Province.getByIndex(i));
+                 resultList.add(result);
              }
+        }
+        public  List<Result> mergeList(List<Result> currentResultList){
+            for (Result currentResult:currentResultList
+                 ) {
+                for(int i = 0;i < 35;i++ ){
+                    if(currentResult.province.equals(resultList.get(i).province)){
+                        resultList.get(i).setIp(currentResult.ip + resultList.get(i).ip);
+                        //全国
+                        resultList.get(0).setIp(currentResult.ip + resultList.get(0).ip);
+                        resultList.get(i).setSp(currentResult.sp + resultList.get(i).sp);
+                        resultList.get(0).setSp(currentResult.sp + resultList.get(0).sp);
+                        resultList.get(i).setCure(currentResult.cure + resultList.get(i).cure);
+                        resultList.get(0).setCure(currentResult.cure + resultList.get(0).cure);
+                        resultList.get(i).setDead(currentResult.dead + resultList.get(i).dead);
+                        resultList.get(0).setDead(currentResult.dead + resultList.get(0).dead);
+                    }
+                }
+            }
+            return resultList;
         }
     }
     static class Parameters {
@@ -131,9 +151,17 @@ class InfectStatistic {
      */
     public static void main(String[] args) {
         ResultList list = new ResultList();
-        //list.resultList
-        Parameters param=ParseOptions(args);
-
+        Parameters param = ParseOptions(args);
+        System.out.println(param.log);
+        list.mergeList(parseLog(param.log));
+        try {
+                for (Result result : list.resultList
+                ) {
+                    System.out.println(result.getResultString());
+                }
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -173,7 +201,7 @@ class InfectStatistic {
                     }
                     //4、<省1> 疑似患者 流入 <省2> n人
                     else if(currentLine.matches(regular.regularFour)){
-                        List<Result> resultList = getIpMoveResult(currentLine);
+                        List<Result> resultList = getSpMoveResult(currentLine);
                         for(int i = 0;i < resultList.size();i++)
                             list.add(resultList.get(i));
                     }

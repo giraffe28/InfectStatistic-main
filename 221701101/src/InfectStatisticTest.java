@@ -12,8 +12,14 @@ import java.util.List;
 public class InfectStatisticTest {
 
     @org.junit.Test
+    public void main() {
+        String[] args = { "java", "InfectStatistic" ,"list","-date", "2020-01-22", "-log", "D:\\2020-01-22.log.txt", "-out", "D:/output.txt"};
+        InfectStatistic.main(args);
+    }
+
+    @org.junit.Test
     public void parseLog() {
-       /* List<InfectStatistic.Result> list = InfectStatistic.parseLog("D:\\ListOut1.txt");
+        List<InfectStatistic.Result> list = InfectStatistic.parseLog("D:\\2020-01-22.log.txt");
         String resultString = "";
         for (InfectStatistic.Result result:list
              ) {
@@ -27,12 +33,12 @@ public class InfectStatisticTest {
                 +"福建 感染患者2人 疑似患者0人 治愈0人 死亡0人"
                 +"湖北 感染患者0人 疑似患者-3人 治愈0人 死亡0人"
                 +"福建 感染患者0人 疑似患者3人 治愈0人 死亡0人"
-                +"湖北 感染患者0人 疑似患者0人 治愈0人 死亡1人"
-                +"湖北 感染患者0人 疑似患者0人 治愈1人 死亡0人"
+                +"湖北 感染患者-1人 疑似患者0人 治愈0人 死亡1人"
+                +"湖北 感染患者-2人 疑似患者0人 治愈2人 死亡0人"
                 +"福建 感染患者1人 疑似患者-1人 治愈0人 死亡0人"
                 +"湖北 感染患者0人 疑似患者-2人 治愈0人 死亡0人";
         Assert.assertEquals(correctString, resultString);
- */
+
     }
 
     @org.junit.Test
