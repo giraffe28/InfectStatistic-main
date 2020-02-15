@@ -1,8 +1,3 @@
-import org.junit.Assert;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author: 221701101linlu
  * @date: $ $
@@ -12,12 +7,18 @@ import java.util.List;
 public class InfectStatisticTest {
 
     @org.junit.Test
+
     public void main() {
-        String[] args = { "java", "InfectStatistic" ,"list","-date", "2020-01-22", "-log", "D:\\2020-01-22.log.txt", "-out", "D:/output.txt"};
-        InfectStatistic.main(args);
+        String[] args1 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt", "-date", "2020-01-22"};
+        String[] args2 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut2.txt", "-date", "2020-01-22", "-province", "福建", "河北"};
+        String[] args3 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut7.txt", "-date", "2020-01-23", "-type", "cure", "dead", "ip", "-province", "全国", "浙江", "福建"};
+        //InfectStatistic.main(args1);
+        //InfectStatistic.main(args2);
+        InfectStatistic.main(args3);
     }
 
-    @org.junit.Test
+}
+    /*@org.junit.Test
     public void parseLog() {
         List<InfectStatistic.Result> list = InfectStatistic.parseLog("D:\\2020-01-22.log.txt");
         String resultString = "";
@@ -133,6 +134,10 @@ public class InfectStatisticTest {
 
     @org.junit.Test
     public void getLogFiles() {
+        ArrayList<String> type = new ArrayList<String>();
+        ArrayList<String> province = new ArrayList<String>();
+        InfectStatistic.Parameters parameters =new InfectStatistic.Parameters("D:\\测试日期","D:\\软件工程作业\\InfectStatistic-main\\221701101","2020-01-27",type,province);
+        List<String> logFiles = InfectStatistic.getLogFiles(parameters);
     }
 
     @org.junit.Test
@@ -158,4 +163,4 @@ public class InfectStatisticTest {
         Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: ip sp province: 全国 浙江 ", parameter4.getParameterString());
         Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: ip province: 全国 浙江 ", parameter5.getParameterString());
     }
-}
+}*/

@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -34,37 +31,63 @@ class InfectStatistic {
                  resultList.add(result);
              }
         }
-        public  List<Result> mergeList(List<Result> currentResultList){
+        /**
+         *@描述  合并相同省份的数据
+         *@参数  List<Result> currentResultList
+         *@返回值  List<Result>
+         *@创建人  221701101林露
+         *@创建时间  2020/2/15
+         */
+        public  List<Result> mergeList(List<Result> currentResultList,Parameters parameters){
             for (Result currentResult:currentResultList
                  ) {
                 for(int i = 0;i < 35;i++ ){
                     if(currentResult.province.equals(resultList.get(i).province)){
                         resultList.get(i).setIp(currentResult.ip + resultList.get(i).ip);
-                        //全国
-                        resultList.get(0).setIp(currentResult.ip + resultList.get(0).ip);
                         resultList.get(i).setSp(currentResult.sp + resultList.get(i).sp);
-                        resultList.get(0).setSp(currentResult.sp + resultList.get(0).sp);
                         resultList.get(i).setCure(currentResult.cure + resultList.get(i).cure);
-                        resultList.get(0).setCure(currentResult.cure + resultList.get(0).cure);
                         resultList.get(i).setDead(currentResult.dead + resultList.get(i).dead);
-                        resultList.get(0).setDead(currentResult.dead + resultList.get(0).dead);
+                        resultList.get(i).setRefer(currentResult.isRefer||resultList.get(i).isRefer);
                     }
+                }
+            }
+            if(parameters.province.size() == 0)
+                resultList.get(0).setRefer(true);
+            else {
+                for (String province:parameters.province
+                     ) {
+                    if(province.equals("全国"))
+                        resultList.get(0).setRefer(true);
                 }
             }
             return resultList;
         }
     }
     static class Parameters {
-        String log = null;
-        String out = null;
-        String date = null;
-        ArrayList<String> type = null;
-        ArrayList<String> province = null;
+        String log;
+        String out;
+        String date;
+        ArrayList<String> type;
+        ArrayList<String> province;
         String str1 = null;
         String str2 = null;
         String str3 = null;
         int i = 0;
         //仅为单元测试使用
+        public Parameters(){
+            log = null;
+            out = null;
+            date = null;
+            type = null;
+            province = null;
+        }
+        public  Parameters(String log,String out,String date,ArrayList<String> type,ArrayList<String> province){
+            this.log = log;
+            this.out = out;
+            this.date = date;
+            this.type = type;
+            this.province = province;
+        }
         public String getParameterString() {
             if(date != null) {
                 str1 = "log: " + log + " " + "out: " + out + " " + "date: " + date + " ";
@@ -100,12 +123,14 @@ class InfectStatistic {
         int sp;
         int cure;
         int dead;
+        boolean isRefer;
         public Result(){
             this.province = null;
             this.ip = 0;
             this.sp = 0;
             this.cure = 0;
             this.dead = 0;
+            this.isRefer = false;
         }
         public void setProvince(String province){
             this.province = province;
@@ -114,32 +139,54 @@ class InfectStatistic {
             return province;
         }
         public void setIp(int ip){
-            this.ip = ip;
+            this.ip += ip;
         }
         public int getIp(){
             return ip;
         }
         public void setSp(int sp){
-            this.sp = sp;
+            this.sp += sp;
         }
         public int getSp(){
             return sp;
         }
         public void setCure(int cure){
-            this.cure = cure;
+            this.cure += cure;
         }
         public int getCure(){
             return cure;
         }
         public void setDead(int dead){
-            this.dead = dead;
+            this.dead += dead;
         }
         public int getDead(){
             return dead;
         }
+        public void setRefer(boolean bool){
+            this.isRefer = bool;
+        }
 
         public String getResultString() {
             return province + " " + "感染患者" + ip + "人" + " " + "疑似患者" + sp + "人" + " " +"治愈" + cure + "人" + " " + "死亡" + dead + "人";
+        }
+        public String getAssignResultString(Parameters parameters){
+            String result = province + " ";
+            for (String type:parameters.type
+                 ) {
+                if(type.equals("ip")){
+                    result += " " + "感染患者" + ip + "人";
+                }
+                else if(type.equals("sp")){
+                    result += " " + "疑似患者" + sp + "人";
+                }
+                else if(type.equals("cure")){
+                    result += " " + "治愈" + cure + "人";
+                }
+                else if(type.equals("dead")){
+                    result += " " + "死亡" + dead + "人";
+                }
+            }
+            return result;
         }
     }
     /**
@@ -150,21 +197,67 @@ class InfectStatistic {
      *@创建时间  2020/2/12
      */
     public static void main(String[] args) {
-        ResultList list = new ResultList();
         Parameters param = ParseOptions(args);
-        System.out.println(param.log);
-        list.mergeList(parseLog(param.log));
+        ResultList list = new ResultList();
+        List<String> logFiles = getLogFiles(param);
+        for (String logfile:logFiles
+             ) {
+            //测试
+            List<Result> resultList=list.mergeList(parseLog(logfile,list.resultList),param);
+            for (Result result:resultList
+                 ) {
+                System.out.println(result.getResultString());
+            }
+        }
         try {
-                for (Result result : list.resultList
-                ) {
-                    System.out.println(result.getResultString());
-                }
-        }catch (NullPointerException e){
+            outPut(list, param);
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
 
+    public static void outPut(ResultList list,Parameters parameters) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(parameters.out)));
+        try {
+                for (Result result : list.resultList
+                ) {
+                    //没有指定省份
+                    if(parameters.province.size() == 0){
+                        //在日志中出现
+                        if(result.isRefer == true) {
+                            //没有指定类型
+                            if(parameters.type.size() == 0)
+                                bw.write(result.getResultString());
+                            //指定类型
+                            else
+                                bw.write(result.getAssignResultString(parameters));
+                            bw.newLine();
+                        }
+                }
+                    //指定省份
+                    else{
+                        for (String pro: parameters.province
+                        ) {
+                            //找到相应省份
+                            if(pro.equals(result.province)){
+                                //没有指定类型
+                                if(parameters.type.size() == 0)
+                                    bw.write(result.getResultString());
+                                //指定类型
+                                else
+                                    bw.write(result.getAssignResultString(parameters));
 
+                                bw.newLine();
+                            }
+                        }
+                    }
+            }
+            bw.write("// 该文档并非真实数据，仅供测试使用");
+            bw.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 
     /**
      *@描述  根据文件名读取相关日志文件，每次读取一行，将该行转化为Result类，最后返回Result集合
@@ -173,7 +266,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public  static List<Result> parseLog(String filePath){// ,String date
+    public  static List<Result> parseLog(String filePath,List<Result> resultList){// ,String date
         Regular regular = new Regular();
         List<Result> list = new ArrayList<Result>();
         File file = new File(filePath);
@@ -185,48 +278,37 @@ class InfectStatistic {
                 while((currentLine = reader.readLine()) != null){
                    // 1、<省> 新增 感染患者 n人
                     if(currentLine.matches(regular.regularOne)){
-                        Result result = getIpResult(currentLine);
-                        list.add(result);
+                        getIpResult(currentLine,resultList);
                     }
                    // 2、<省> 新增 疑似患者 n人
                     else if(currentLine.matches(regular.regularTwo)){
-                        Result result = getSpResult(currentLine);
-                        list.add(result);
+                        getSpResult(currentLine,resultList);
                     }
                     //3、<省1> 感染患者 流入 <省2> n人
                     else if(currentLine.matches(regular.regularThree)){
-                        List<Result> resultList = getIpMoveResult(currentLine);
-                        for(int i = 0;i < resultList.size();i++)
-                            list.add(resultList.get(i));
+                        getIpMoveResult(currentLine,resultList);
                     }
                     //4、<省1> 疑似患者 流入 <省2> n人
                     else if(currentLine.matches(regular.regularFour)){
-                        List<Result> resultList = getSpMoveResult(currentLine);
-                        for(int i = 0;i < resultList.size();i++)
-                            list.add(resultList.get(i));
+                       getSpMoveResult(currentLine,resultList);
                     }
                     //5、<省> 死亡 n人
                     else if(currentLine.matches(regular.regularFive)){
-                        Result result = getDeadResult(currentLine);
-                        list.add(result);
+                       getDeadResult(currentLine,resultList);
                     }
                     //6、<省> 治愈 n人
                     else if(currentLine.matches(regular.regularSix)){
-                        Result result = getCureResult(currentLine);
-                        list.add(result);
+                        getCureResult(currentLine,resultList);
                     }
                     //7、<省> 疑似患者 确诊感染 n人
                     else if(currentLine.matches(regular.regularSeven)){
-                        Result result = getSpToIpResult(currentLine);
-                        list.add(result);
+                        getSpToIpResult(currentLine,resultList);
                     }
                     //8、<省> 排除 疑似患者 n人
                     else if(currentLine.matches(regular.regularEight)){
-                        Result result = getSpClearResult(currentLine);
-                        list.add(result);
+                       getSpClearResult(currentLine,resultList);
                     }
                 }
-
             }catch (IOException e){
                 e.printStackTrace();
             }
@@ -241,7 +323,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static Result getIpResult(String currentLine){
+    /*public static Result getIpResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 新增");
         Pattern pattern2 = Pattern.compile("感染患者 (.*)人");
@@ -254,6 +336,23 @@ class InfectStatistic {
             result.setIp(Integer.parseInt(matcher2.group(1)));
         }
         return result;
+    }*/
+    public static List<Result> getIpResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 新增");
+        Pattern pattern2 = Pattern.compile("感染患者 (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()){
+            for (Result provinceResult:provincesResult
+                 ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setIp(Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+            provincesResult.get(0).setIp(Integer.parseInt(matcher2.group(1)));
+        }
+        return provincesResult;
     }
     /**
      *@描述  当前行为 “<省> 新增 疑似患者 n人”对应语句，将其转换为Result类，获得某省疑似患者变化结果
@@ -262,7 +361,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static Result getSpResult(String currentLine){
+   /* public static Result getSpResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 新增");
         Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
@@ -275,6 +374,23 @@ class InfectStatistic {
             result.setSp(Integer.parseInt(matcher2.group(1)));
         }
         return result;
+    }*/
+    public static List<Result> getSpResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 新增");
+        Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setSp(Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+            provincesResult.get(0).setSp(Integer.parseInt(matcher2.group(1)));
+        }
+        return provincesResult;
     }
     /**
      *@描述  当前行为 “<省> 治愈 n人”对应语句，将其转换为Result类，获得某省治愈患者变化结果
@@ -283,7 +399,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static Result getCureResult(String currentLine){
+   /*public static Result getCureResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 治愈");
         Pattern pattern2 = Pattern.compile("治愈 (.*)人");
@@ -297,6 +413,25 @@ class InfectStatistic {
             result.setCure(Integer.parseInt(matcher2.group(1)));
         }
         return result;
+    }*/
+    public static List<Result> getCureResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 治愈");
+        Pattern pattern2 = Pattern.compile("治愈 (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setCure(Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setIp(-Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+            provincesResult.get(0).setCure(Integer.parseInt(matcher2.group(1)));
+            provincesResult.get(0).setIp(-Integer.parseInt(matcher2.group(1)));
+        }
+        return provincesResult;
     }
     /**
      *@描述  当前行为 “<省> 死亡 n人”对应语句，将其转换为Result类，获得某省死亡患者变化结果
@@ -305,7 +440,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static Result getDeadResult(String currentLine){
+    /*public static Result getDeadResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 死亡");
         Pattern pattern2 = Pattern.compile("死亡 (.*)人");
@@ -319,7 +454,27 @@ class InfectStatistic {
             result.setDead(Integer.parseInt(matcher2.group(1)));
         }
         return result;
+    }*/
+    public static List<Result> getDeadResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 死亡");
+        Pattern pattern2 = Pattern.compile("死亡 (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setDead(Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setIp(-Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+            provincesResult.get(0).setDead(Integer.parseInt(matcher2.group(1)));
+            provincesResult.get(0).setIp(-Integer.parseInt(matcher2.group(1)));
+        }
+        return provincesResult;
     }
+
     /**
      *@描述 当前行为 “<省1> 感染患者 流入 <省2> n人”对应语句，将其转换为Result类，获得两省感染患者变化结果
      *@参数 String currentLine 当前行
@@ -327,7 +482,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static List<Result> getIpMoveResult(String currentLine){
+    /*public static List<Result> getIpMoveResult(String currentLine){
         List<Result> resultList = new ArrayList<Result>();
         Pattern pattern1 = Pattern.compile("(.*) 感染患者");
         Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
@@ -348,6 +503,28 @@ class InfectStatistic {
         resultList.add(result1);
         resultList.add(result2);
         return resultList;
+    }*/
+    public static List<Result> getIpMoveResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 感染患者");
+        Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
+        Pattern pattern3 = Pattern.compile("\\W+ (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        Matcher matcher3 = pattern3.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()&&matcher3.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setIp(-Integer.parseInt(matcher3.group(1)));
+                    provinceResult.setRefer(true);
+                }
+                if(provinceResult.province.equals(matcher2.group(1))) {
+                    provinceResult.setIp(Integer.parseInt(matcher3.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+        }
+        return provincesResult;
     }
     /**
      *@描述 当前行为 “<省1> 疑似患者 流入 <省2> n人”对应语句，将其转换为Result类，获得两省疑似患者变化结果
@@ -356,7 +533,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static List<Result> getSpMoveResult(String currentLine){
+   /* public static List<Result> getSpMoveResult(String currentLine){
         List<Result> resultList = new ArrayList<Result>();
         Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
         Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
@@ -377,6 +554,28 @@ class InfectStatistic {
         resultList.add(result1);
         resultList.add(result2);
         return resultList;
+    }*/
+    public static List<Result> getSpMoveResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
+        Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
+        Pattern pattern3 = Pattern.compile("\\W+ (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        Matcher matcher3 = pattern3.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()&&matcher3.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setSp(-Integer.parseInt(matcher3.group(1)));
+                    provinceResult.setRefer(true);
+                }
+                if(provinceResult.province.equals(matcher2.group(1))) {
+                    provinceResult.setSp(Integer.parseInt(matcher3.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+        }
+        return provincesResult;
     }
     /**
      *@描述 当前行为 “<省> 疑似患者 确诊感染 n人”对应语句，将其转换为Result类，获得某省疑似患者、感染患者变化结果
@@ -385,7 +584,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static Result getSpToIpResult(String currentLine){
+    /*public static Result getSpToIpResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
         Pattern pattern2 = Pattern.compile("确诊感染 (.*)人");
@@ -400,6 +599,27 @@ class InfectStatistic {
         }
         return result;
     }
+     */
+    public static List<Result> getSpToIpResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
+        Pattern pattern2 = Pattern.compile("确诊感染 (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setSp(-Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setIp(Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setRefer(true);
+                }
+            }
+            provincesResult.get(0).setSp(-Integer.parseInt(matcher2.group(1)));
+            provincesResult.get(0).setIp(Integer.parseInt(matcher2.group(1)));
+        }
+        return provincesResult;
+    }
+
     /**
      *@描述  当前行为 “<省> 排除 疑似患者 n人”对应语句，将其转换为Result类，获得某省疑似患者变化结果
      *@参数  String currentLine
@@ -407,7 +627,7 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public static Result getSpClearResult(String currentLine){
+    /*public static Result getSpClearResult(String currentLine){
         Result result = new Result();
         Pattern pattern1 = Pattern.compile("(.*) 排除");
         Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
@@ -421,49 +641,48 @@ class InfectStatistic {
         }
         return result;
     }
-
-    /**
-     *@描述 测试输出
-     *@参数  String[] args
-     *@返回值  void
-     *@创建人  221701101林露
-     *@创建时间  2020/2/12
-     */
-    /*public static void list(String[] args){
-        Parameters param=ParseOptions(args);
-        System.out.println(param.log);
-        System.out.println(param.out);
-        System.out.println(param.date);
-        try {
-            if (!param.type.isEmpty()) {
-                for (int i = 0; i < param.type.size(); i++)
-                    System.out.println(param.type.get(i));
+*/
+    public static List<Result> getSpClearResult(String currentLine,List<Result> provincesResult){
+        Pattern pattern1 = Pattern.compile("(.*) 排除");
+        Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
+        Matcher matcher1 = pattern1.matcher(currentLine);
+        Matcher matcher2 = pattern2.matcher(currentLine);
+        if(matcher1.find()&&matcher2.find()){
+            for (Result provinceResult:provincesResult
+            ) {
+                if(provinceResult.province.equals(matcher1.group(1))) {
+                    provinceResult.setSp(-Integer.parseInt(matcher2.group(1)));
+                    provinceResult.setRefer(true);
+                }
             }
-            if (!param.province.isEmpty()) {
-                for (int i = 0; i < param.province.size(); i++)
-                    System.out.println(param.province.get(i));
-            }
-        }catch (NullPointerException e){
-            System.out.println("Catch NullPointerException");
+            provincesResult.get(0).setSp(-Integer.parseInt(matcher2.group(1)));
         }
-    }*/
-
+        return provincesResult;
+    }
     /**
-     *@描述 获得所有日志文件
-     *@参数  rootPath
+     *@描述 获得parameters.date之前所有日志文件
+     *@参数  Parameter
      *@返回值  List<String>
      *@创建人  221701101林露
      *@创建时间  2020/2/12
      */
-    public static List<String> getLogFiles(String rootPath){
+    public static List<String> getLogFiles(Parameters parameters){
+        File file = new File(parameters.log);
+        File[] fileList = file.listFiles();
+        String fileName = null;
         List<String> logFiles = new ArrayList<String>();
-        File file = new File(rootPath);
-        File[] files = file.listFiles();
-        for(int i = 0;i < files.length;i++){
-            if(files[i].isFile()){
-                logFiles.add(files[i].toString());
+        try{
+            for (int i = 0; i < fileList.length; i++) {
+                fileName = fileList[i].getName();
+                if (fileName.substring(0,10).compareTo(parameters.date) <= 0) { //如果该文件的日期小于指定日期
+                    logFiles.add(parameters.log + fileName);
+                    //System.out.println(parameters.log+ fileName);
+                }
             }
+        }catch(NullPointerException e){
+            e.printStackTrace();
         }
+
         return logFiles;
     }
 
