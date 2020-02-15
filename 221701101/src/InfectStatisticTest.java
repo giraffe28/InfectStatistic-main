@@ -12,9 +12,11 @@ public class InfectStatisticTest {
         String[] args1 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt", "-date", "2020-01-22"};
         String[] args2 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut2.txt", "-date", "2020-01-22", "-province", "福建", "河北"};
         String[] args3 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut7.txt", "-date", "2020-01-23", "-type", "cure", "dead", "ip", "-province", "全国", "浙江", "福建"};
+        String[] args4 = {"java", "InfectStatistic", "list", "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt"};
         //InfectStatistic.main(args1);
         //InfectStatistic.main(args2);
-        InfectStatistic.main(args3);
+        //InfectStatistic.main(args3);
+        InfectStatistic.main(args4);
     }
 
 }

@@ -202,12 +202,7 @@ class InfectStatistic {
         List<String> logFiles = getLogFiles(param);
         for (String logfile:logFiles
              ) {
-            //测试
-            List<Result> resultList=list.mergeList(parseLog(logfile,list.resultList),param);
-            for (Result result:resultList
-                 ) {
-                System.out.println(result.getResultString());
-            }
+           list.mergeList(parseLog(logfile,list.resultList),param);
         }
         try {
             outPut(list, param);
@@ -670,19 +665,26 @@ class InfectStatistic {
         File file = new File(parameters.log);
         File[] fileList = file.listFiles();
         String fileName = null;
+        String latest = fileList[0].getName().substring(0,10);
         List<String> logFiles = new ArrayList<String>();
         try{
             for (int i = 0; i < fileList.length; i++) {
                 fileName = fileList[i].getName();
-                if (fileName.substring(0,10).compareTo(parameters.date) <= 0) { //如果该文件的日期小于指定日期
-                    logFiles.add(parameters.log + fileName);
-                    //System.out.println(parameters.log+ fileName);
+                if(fileName.substring(0,10).compareTo(latest) > 0)
+                    latest = fileName.substring(0,10);
+                if(parameters.date != null){
+                    if (fileName.substring(0,10).compareTo(parameters.date) <= 0) { //如果该文件的日期小于指定日期
+                        logFiles.add(parameters.log + fileName);
+                        //System.out.println(parameters.log+ fileName);
+                    }
                 }
             }
         }catch(NullPointerException e){
             e.printStackTrace();
         }
-
+        if(parameters.date == null)
+            parameters.date = latest;
+        System.out.println(parameters.date);
         return logFiles;
     }
 
@@ -735,3 +737,4 @@ class InfectStatistic {
         return parameters;
     }
 }
+
