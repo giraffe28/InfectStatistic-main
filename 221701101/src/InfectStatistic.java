@@ -69,6 +69,7 @@ class InfectStatistic {
         String date;
         ArrayList<String> type;
         ArrayList<String> province;
+        String[] args = null;
         String str1 = null;
         String str2 = null;
         String str3 = null;
@@ -87,6 +88,18 @@ class InfectStatistic {
             this.date = date;
             this.type = type;
             this.province = province;
+        }
+        public void setArgs(String[] args){
+            this.args = args;
+        }
+        public String getArgsString(){
+            String argsStr = "";
+            for (String arg:args
+                 ) {
+                if(!arg.equals(null))
+                    argsStr += arg + " ";
+            }
+            return argsStr;
         }
         public String getParameterString() {
             if(date != null) {
@@ -197,20 +210,58 @@ class InfectStatistic {
      *@创建时间  2020/2/12
      */
     public static void main(String[] args) {
-        Parameters param = ParseOptions(args);
-        ResultList list = new ResultList();
-        List<String> logFiles = getLogFiles(param);
-        for (String logfile:logFiles
-             ) {
-           list.mergeList(parseLog(logfile,list.resultList),param);
+        if(!args[0].equals("list")) {
+            System.out.println("命令行格式有误——应该以list开头");
+            return;
         }
-        try {
-            outPut(list, param);
-        }catch(IOException e){
-            e.printStackTrace();
+        Parameters param = ParseOptions(args);
+        if(param.log != null && param.out != null){
+            ResultList list = new ResultList();
+            List<String> logFiles = getLogFiles(param);
+            for (String logfile:logFiles
+            ) {
+                list.mergeList(parseLog(logfile,list.resultList),param);
+            }
+            try {
+                outPut(list, param);
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        else{
+            System.out.println("log和out参数不能为空，请重新输入！");
+        }
+
+    }
+/**
+ *@描述  输出-out对应文件的内容
+ *@参数  String outPath
+ *@返回值  void
+ *@创建人  221701101林露
+ *@创建时间  2020/2/16
+ */
+    public  static void print(String outPath){
+        File file = new File(outPath);
+        if(file.isFile()) {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(file));
+                String currentLine = null;
+                while ((currentLine = reader.readLine()) != null)
+                    System.out.println(currentLine);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
+    /**
+     *@描述 将所有省份（或指定的省份）的不同类型的（或指定类型的）患者输出到指定文件中
+     *@参数  ResultList list,Parameters parameters
+     *@返回值   void
+     *@创建人  221701101林露
+     *@创建时间  2020/2/16
+     */
     public static void outPut(ResultList list,Parameters parameters) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(parameters.out)));
         try {
@@ -218,6 +269,7 @@ class InfectStatistic {
                 ) {
                     //没有指定省份
                     if(parameters.province.size() == 0){
+                        list.resultList.get(0).setRefer(true);
                         //在日志中出现
                         if(result.isRefer == true) {
                             //没有指定类型
@@ -226,7 +278,7 @@ class InfectStatistic {
                             //指定类型
                             else
                                 bw.write(result.getAssignResultString(parameters));
-                            bw.newLine();
+                            bw.write("\n");
                         }
                 }
                     //指定省份
@@ -242,12 +294,13 @@ class InfectStatistic {
                                 else
                                     bw.write(result.getAssignResultString(parameters));
 
-                                bw.newLine();
+                                bw.write("\n");
                             }
                         }
                     }
             }
-            bw.write("// 该文档并非真实数据，仅供测试使用");
+            bw.write("// 该文档并非真实数据，仅供测试使用\n");
+            bw.write("// 命令：" + parameters.getArgsString() + "\n");
             bw.close();
         }catch(IOException e){
             e.printStackTrace();
@@ -261,10 +314,10 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    public  static List<Result> parseLog(String filePath,List<Result> resultList){// ,String date
+    public  static List<Result> parseLog(String logPath,List<Result> resultList){// ,String date
         Regular regular = new Regular();
         List<Result> list = new ArrayList<Result>();
-        File file = new File(filePath);
+        File file = new File(logPath);
         if(file.isFile()){
             BufferedReader reader = null;
             try{
@@ -674,8 +727,8 @@ class InfectStatistic {
                     latest = fileName.substring(0,10);
                 if(parameters.date != null){
                     if (fileName.substring(0,10).compareTo(parameters.date) <= 0) { //如果该文件的日期小于指定日期
-                        logFiles.add(parameters.log + fileName);
-                        //System.out.println(parameters.log+ fileName);
+                        logFiles.add(parameters.log + "\\" + fileName);
+                        //System.out.println(parameters.log+ "\\" + fileName);
                     }
                 }
             }
@@ -684,12 +737,12 @@ class InfectStatistic {
         }
         if(parameters.date == null)
             parameters.date = latest;
-        System.out.println(parameters.date);
         return logFiles;
     }
 
     public static Parameters ParseOptions(String[] args) {
         Parameters parameters = new Parameters();
+        parameters.setArgs(args);
         ArrayList<String> typeList = new ArrayList<>();
         ArrayList<String> provinceList = new ArrayList<>();
         for (int i = 0; i < args.length; i++) {
