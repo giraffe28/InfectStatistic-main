@@ -234,7 +234,7 @@ class InfectStatistic {
         print(param.out);
     }
 /**
- *@描述  输出-out对应文件的内容
+ *@描述  控制台测试输出输出（-out对应文件的内容）
  *@参数  String outPath
  *@返回值  void
  *@创建人  221701101林露
@@ -245,7 +245,8 @@ class InfectStatistic {
         if(file.isFile()) {
             BufferedReader reader = null;
             try {
-                reader = new BufferedReader(new FileReader(file));
+                reader = new BufferedReader(new InputStreamReader(new FileInputStream(outPath),"UTF-8"));
+                //reader = new BufferedReader(new FileReader(file));
                 String currentLine = null;
                 while ((currentLine = reader.readLine()) != null)
                     System.out.println(currentLine);
@@ -263,7 +264,7 @@ class InfectStatistic {
      *@创建时间  2020/2/16
      */
     public static void outPut(ResultList list,Parameters parameters) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(parameters.out)));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(parameters.out)),"UTF-8"));
         try {
                 for (Result result : list.resultList
                 ) {
@@ -323,7 +324,8 @@ class InfectStatistic {
         if(file.isFile()){
             BufferedReader reader = null;
             try{
-                reader = new BufferedReader(new FileReader(file));
+                reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
+                //reader = new BufferedReader(new FileReader(file));
                 String currentLine = null;
                 while((currentLine = reader.readLine()) != null){
                    // 1、<省> 新增 感染患者 n人
@@ -373,20 +375,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    /*public static Result getIpResult(String currentLine){
-        Result result = new Result();
-        Pattern pattern1 = Pattern.compile("(.*) 新增");
-        Pattern pattern2 = Pattern.compile("感染患者 (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        if(matcher1.find()){
-            result.setProvince(matcher1.group(1));
-        }
-        if(matcher2.find()){
-            result.setIp(Integer.parseInt(matcher2.group(1)));
-        }
-        return result;
-    }*/
     public static List<Result> getIpResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 新增");
         Pattern pattern2 = Pattern.compile("感染患者 (.*)人");
@@ -411,20 +399,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-   /* public static Result getSpResult(String currentLine){
-        Result result = new Result();
-        Pattern pattern1 = Pattern.compile("(.*) 新增");
-        Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        if(matcher1.find()){
-            result.setProvince(matcher1.group(1));
-        }
-        if(matcher2.find()){
-            result.setSp(Integer.parseInt(matcher2.group(1)));
-        }
-        return result;
-    }*/
     public static List<Result> getSpResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 新增");
         Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
@@ -449,21 +423,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-   /*public static Result getCureResult(String currentLine){
-        Result result = new Result();
-        Pattern pattern1 = Pattern.compile("(.*) 治愈");
-        Pattern pattern2 = Pattern.compile("治愈 (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        if(matcher1.find()){
-            result.setProvince(matcher1.group(1));
-        }
-        if(matcher2.find()){
-            result.setIp(-Integer.parseInt(matcher2.group(1)));
-            result.setCure(Integer.parseInt(matcher2.group(1)));
-        }
-        return result;
-    }*/
     public static List<Result> getCureResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 治愈");
         Pattern pattern2 = Pattern.compile("治愈 (.*)人");
@@ -490,21 +449,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    /*public static Result getDeadResult(String currentLine){
-        Result result = new Result();
-        Pattern pattern1 = Pattern.compile("(.*) 死亡");
-        Pattern pattern2 = Pattern.compile("死亡 (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        if(matcher1.find()){
-            result.setProvince(matcher1.group(1));
-        }
-        if(matcher2.find()){
-            result.setIp(-Integer.parseInt(matcher2.group(1)));
-            result.setDead(Integer.parseInt(matcher2.group(1)));
-        }
-        return result;
-    }*/
     public static List<Result> getDeadResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 死亡");
         Pattern pattern2 = Pattern.compile("死亡 (.*)人");
@@ -532,28 +476,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    /*public static List<Result> getIpMoveResult(String currentLine){
-        List<Result> resultList = new ArrayList<Result>();
-        Pattern pattern1 = Pattern.compile("(.*) 感染患者");
-        Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
-        Pattern pattern3 = Pattern.compile("\\W+ (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        Matcher matcher3 = pattern3.matcher(currentLine);
-        Result result1 = new Result();
-        Result result2 = new Result();
-        if(matcher1.find()&&matcher2.find()){
-            result1.setProvince(matcher1.group(1));
-            result2.setProvince(matcher2.group(1));
-        }
-        if(matcher3.find()){
-            result1.setIp(-Integer.parseInt(matcher3.group(1)));
-            result2.setIp(Integer.parseInt(matcher3.group(1)));
-        }
-        resultList.add(result1);
-        resultList.add(result2);
-        return resultList;
-    }*/
     public static List<Result> getIpMoveResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 感染患者");
         Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
@@ -583,28 +505,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-   /* public static List<Result> getSpMoveResult(String currentLine){
-        List<Result> resultList = new ArrayList<Result>();
-        Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
-        Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
-        Pattern pattern3 = Pattern.compile("\\W+ (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        Matcher matcher3 = pattern3.matcher(currentLine);
-        Result result1 = new Result();
-        Result result2 = new Result();
-        if(matcher1.find()&&matcher2.find()){
-            result1.setProvince(matcher1.group(1));
-            result2.setProvince(matcher2.group(1));
-        }
-        if(matcher3.find()){
-            result1.setSp(-Integer.parseInt(matcher3.group(1)));
-            result2.setSp(Integer.parseInt(matcher3.group(1)));
-        }
-        resultList.add(result1);
-        resultList.add(result2);
-        return resultList;
-    }*/
     public static List<Result> getSpMoveResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
         Pattern pattern2 = Pattern.compile("流入 (.*) \\d+人");
@@ -627,28 +527,13 @@ class InfectStatistic {
         }
         return provincesResult;
     }
+
     /**
      *@描述 当前行为 “<省> 疑似患者 确诊感染 n人”对应语句，将其转换为Result类，获得某省疑似患者、感染患者变化结果
      *@参数  String currentLine
      *@返回值  Result
      *@创建人  221701101林露
      *@创建时间  2020/2/13
-     */
-    /*public static Result getSpToIpResult(String currentLine){
-        Result result = new Result();
-        Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
-        Pattern pattern2 = Pattern.compile("确诊感染 (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        if(matcher1.find()){
-            result.setProvince(matcher1.group(1));
-        }
-        if(matcher2.find()){
-            result.setIp(Integer.parseInt(matcher2.group(1)));
-            result.setSp(-Integer.parseInt(matcher2.group(1)));
-        }
-        return result;
-    }
      */
     public static List<Result> getSpToIpResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 疑似患者");
@@ -677,21 +562,6 @@ class InfectStatistic {
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
-    /*public static Result getSpClearResult(String currentLine){
-        Result result = new Result();
-        Pattern pattern1 = Pattern.compile("(.*) 排除");
-        Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
-        Matcher matcher1 = pattern1.matcher(currentLine);
-        Matcher matcher2 = pattern2.matcher(currentLine);
-        if(matcher1.find()){
-            result.setProvince(matcher1.group(1));
-        }
-        if(matcher2.find()){
-            result.setSp(-Integer.parseInt(matcher2.group(1)));
-        }
-        return result;
-    }
-*/
     public static List<Result> getSpClearResult(String currentLine,List<Result> provincesResult){
         Pattern pattern1 = Pattern.compile("(.*) 排除");
         Pattern pattern2 = Pattern.compile("疑似患者 (.*)人");
@@ -730,7 +600,6 @@ class InfectStatistic {
                 if(parameters.date != null){
                     if (fileName.substring(0,10).compareTo(parameters.date) <= 0) { //如果该文件的日期小于指定日期
                         logFiles.add(parameters.log + "\\" + fileName);
-                        //System.out.println(parameters.log+ "\\" + fileName);
                     }
                 }
             }
