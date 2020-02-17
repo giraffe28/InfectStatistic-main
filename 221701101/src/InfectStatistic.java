@@ -231,7 +231,7 @@ class InfectStatistic {
         else{
             System.out.println("log和out参数不能为空，请重新输入！");
         }
-
+        print(param.out);
     }
 /**
  *@描述  输出-out对应文件的内容
@@ -280,6 +280,8 @@ class InfectStatistic {
                                 bw.write(result.getAssignResultString(parameters));
                             bw.write("\n");
                         }
+                        else
+                            continue;;
                 }
                     //指定省份
                     else{
