@@ -30,4 +30,4 @@ InfectStatistic-example.iml
 *.txt
 /log/
 /out/
-/src/.class
+/.class
