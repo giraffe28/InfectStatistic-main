@@ -28,3 +28,6 @@ InfectStatistic-example.iml
 *.txt
 *.txt
 *.txt
+/log/
+/out/
+/src/.class
