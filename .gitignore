@@ -9,9 +9,6 @@ out
 gen
 .idea/
 InfectStatistic-example.iml
-log/
-result/
-src
-*.class
-InfectStatisticTest.java
+221701101/src/*.class
+221701101/src/InfectStatisticTest.java
 
