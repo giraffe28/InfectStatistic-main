@@ -21,6 +21,7 @@ class InfectStatistic {
             return province[index];
         }
     }
+
     static class ResultList{
         List<Result> resultList = new ArrayList<Result>();
         ResultList(){
@@ -166,6 +167,8 @@ class InfectStatistic {
         public String getResultString() {
             return province + " " + "感染患者" + ip + "人" + " " + "疑似患者" + sp + "人" + " " +"治愈" + cure + "人" + " " + "死亡" + dead + "人";
         }
+
+        //得到指定类型输出
         public String getAssignResultString(Parameters parameters){
             String result = province + " ";
             for (String type:parameters.type
@@ -573,13 +576,20 @@ class InfectStatistic {
         File file = new File(parameters.log);
         File[] fileList = file.listFiles();
         String fileName = null;
-        String latest = fileList[0].getName().substring(0,10);
+        if(parameters.date == null){
+            String latest = fileList[0].getName().substring(0,10);
+            for (int i = 0; i < fileList.length; i++) {
+                fileName = fileList[i].getName();
+                if (fileName.substring(0, 10).compareTo(latest) > 0)
+                    latest = fileName.substring(0, 10);
+            }
+            parameters.date = latest;
+        }
+
         List<String> logFiles = new ArrayList<String>();
         try{
             for (int i = 0; i < fileList.length; i++) {
                 fileName = fileList[i].getName();
-                if(fileName.substring(0,10).compareTo(latest) > 0)
-                    latest = fileName.substring(0,10);
                 if(parameters.date != null){
                     if (fileName.substring(0,10).compareTo(parameters.date) <= 0) { //如果该文件的日期小于指定日期
                         logFiles.add(parameters.log + "\\" + fileName);
@@ -589,8 +599,6 @@ class InfectStatistic {
         }catch(NullPointerException e){
             e.printStackTrace();
         }
-        if(parameters.date == null)
-            parameters.date = latest;
         return logFiles;
     }
 

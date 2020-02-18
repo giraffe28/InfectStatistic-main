@@ -18,10 +18,12 @@ public class InfectStatisticTest {
         String[] args2 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut2.txt", "-date", "2020-01-22", "-province", "福建", "河北"};
         String[] args3 = { "list", "-log", "D:\\log\\", "-out", "D:\\ListOut7.txt", "-date", "2020-01-23", "-type", "cure", "dead", "ip", "-province", "全国", "浙江", "福建"};
         String[] args4 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt"};
-        InfectStatistic.main(args1);
-        //InfectStatistic.main(args2);
+        String[] args5 = { "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt"};
+        //InfectStatistic.main(args1);
+       // InfectStatistic.main(args2);
        // InfectStatistic.main(args3);
-       // InfectStatistic.main(args4);
+        InfectStatistic.main(args4);
+       // InfectStatistic.main(args5);
     }
 
 
