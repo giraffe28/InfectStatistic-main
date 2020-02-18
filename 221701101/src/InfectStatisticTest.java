@@ -14,16 +14,49 @@ public class InfectStatisticTest {
 
     @org.junit.Test
     public void main() {
-        String[] args1 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt", "-date", "2020-01-22"};
-        String[] args2 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut2.txt", "-date", "2020-01-22", "-province", "福建", "河北"};
-        String[] args3 = { "list", "-log", "D:\\log\\", "-out", "D:\\ListOut7.txt", "-date", "2020-01-23", "-type", "cure", "dead", "ip", "-province", "全国", "浙江", "福建"};
-        String[] args4 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt"};
-        String[] args5 = { "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt"};
-        //InfectStatistic.main(args1);
-       // InfectStatistic.main(args2);
-       // InfectStatistic.main(args3);
+        //命令不是以list开头，程序报告错误
+        String[] args1 = { "-log", "D:\\log\\", "-out", "D:\\ListOut1.txt"};
+        //未输入-log参数的值，或直接不输入
+        String[] args2 = { "list","-log","-out", "D:\\ListOut2.txt"};
+        String[] args3 = { "list","-out", "D:\\ListOut3.txt"};
+        //未输入-out参数的值，或直接不输入
+        String[] args4 = { "list","-log", "D:\\log\\", "-out"};
+        String[] args5 = { "list","-log", "D:\\log\\"};
+        //仅携带-log和-out参数
+        String[] args6 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut4.txt"};
+        //携带-log、-out、-date
+        String[] args7 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut5.txt", "-date", "2020-01-22"};
+        String[] args8 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut5.txt", "-date", "2020-01-23"};
+        String[] args9 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut5.txt", "-date", "2020-01-27"};
+        //携带-log、-out、-date、-type
+        String[] args10 = {"list","-log", "D:\\log\\", "-out", "D:\\ListOut6.txt","-date", "2020-01-22","-type","dead"};
+        String[] args11= {"list","-log", "D:\\log\\", "-out", "D:\\ListOut6.txt","-date", "2020-01-23","-type","cure"};
+        //携带-log、-out、-date、province
+        String[] args12 = {"list", "-log", "D:\\log\\", "-out", "D:\\ListOut7.txt", "-date", "2020-01-22", "-province", "福建", "河北"};
+        //携带-log、-out、-date、-type、-province
+        String[] args13 = { "list", "-log", "D:\\log\\", "-out", "D:\\ListOut8.txt", "-date", "2020-01-23", "-type", "cure", "dead", "ip", "-province", "全国", "浙江", "福建"};
+        //携带-log、-out、-type
+        String[] args14 = {"list","-log", "D:\\log\\", "-out", "D:\\ListOut.txt","-type","ip"};
+        //携带-log、-out、-type、-province
+        String[] args15 = {"list","-log", "D:\\log\\", "-out", "D:\\ListOut.txt","-type","ip","sp","-province","福建"};
+        //携带-log、-out、-province
+        String[] args16 = {"list","-log", "D:\\log\\", "-out", "D:\\ListOut.txt","-province","河北"};
+        InfectStatistic.main(args1);
+       InfectStatistic.main(args2);
+        InfectStatistic.main(args3);
         InfectStatistic.main(args4);
-       // InfectStatistic.main(args5);
+        InfectStatistic.main(args5);
+        InfectStatistic.main(args6);
+        InfectStatistic.main(args7);
+        InfectStatistic.main(args8);
+        InfectStatistic.main(args9);
+        InfectStatistic.main(args10);
+        InfectStatistic.main(args11);
+        InfectStatistic.main(args12);
+        InfectStatistic.main(args13);
+        InfectStatistic.main(args14);
+        InfectStatistic.main(args15);
+        InfectStatistic.main(args16);
     }
 
 
@@ -214,11 +247,11 @@ public class InfectStatisticTest {
 
     @org.junit.Test
     public void parseOptions() {
-        String command1 = "java InfectStatistic list -date 2020-01-22 -log D:/log/ -out D:/output.txt";
-        String command2 = "java InfectStatistic list -date -log D:/log/ -out D:/output.txt";
-        String command3 = "java InfectStatistic list -log D:/log/ -out D:/output.txt";
-        String command4 = "java InfectStatistic list -log D:/log/ -out D:/output.txt -type ip sp -province 全国 浙江";
-        String command5 = "java InfectStatistic list -log D:/log/ -out D:/output.txt -province 全国 浙江 -type ip";
+        String command1 = "list -date 2020-01-22 -log D:/log/ -out D:/output.txt";
+        String command2 = "list -date -log D:/log/ -out D:/output.txt";
+        String command3 = "list -log D:/log/ -out D:/output.txt";
+        String command4 = "list -log D:/log/ -out D:/output.txt -type ip sp -province 全国 浙江";
+        String command5 = "list -log D:/log/ -out D:/output.txt -province 全国 浙江 -type ip";
         String[] array1 = command1.split("\\s+");
         String[] array2 = command2.split("\\s+");
         String[] array3 = command3.split("\\s+");

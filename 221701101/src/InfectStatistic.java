@@ -197,6 +197,10 @@ class InfectStatistic {
      *@创建时间  2020/2/12
      */
     public static void main(String[] args) {
+        if(args.length == 0){
+            System.out.println("参数不能为空");
+            return;
+        }
         if(!args[0].equals("list")) {
             System.out.println("命令行格式有误——应该以list开头");
             return;
@@ -217,6 +221,7 @@ class InfectStatistic {
         }
         else{
             System.out.println("log和out参数不能为空，请重新输入！");
+            return;
         }
         print(param.out);
     }
@@ -618,7 +623,7 @@ class InfectStatistic {
             if (args[i].equals("-log")) {
                 parameters.log = args[i + 1];
                 i++;
-            } else if (args[i].equals("-out")) {
+            } else if (args[i].equals("-out") && i != args.length-1) {
                 parameters.out = args[i + 1];
                 i++;
             } else if (args[i].equals("-date")) {
