@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 /**
  * InfectStatistic
  * TODO
- *
  * @author linlu
  * @version 1.0
  * @since 2020/2/11
@@ -33,7 +32,7 @@ class InfectStatistic {
         }
         /**
          *@描述  合并相同省份的数据
-         *@参数  List<Result> currentResultList
+         *@参数  List<Result> currentResultList，Parameters parameters
          *@返回值  List<Result>
          *@创建人  221701101林露
          *@创建时间  2020/2/15
@@ -148,32 +147,17 @@ class InfectStatistic {
         public void setProvince(String province){
             this.province = province;
         }
-        public String getProvince(){
-            return province;
-        }
         public void setIp(int ip){
             this.ip += ip;
-        }
-        public int getIp(){
-            return ip;
         }
         public void setSp(int sp){
             this.sp += sp;
         }
-        public int getSp(){
-            return sp;
-        }
         public void setCure(int cure){
             this.cure += cure;
         }
-        public int getCure(){
-            return cure;
-        }
         public void setDead(int dead){
             this.dead += dead;
-        }
-        public int getDead(){
-            return dead;
         }
         public void setRefer(boolean bool){
             this.isRefer = bool;
@@ -214,7 +198,7 @@ class InfectStatistic {
             System.out.println("命令行格式有误——应该以list开头");
             return;
         }
-        Parameters param = ParseOptions(args);
+        Parameters param = parseOptions(args);
         if(param.log != null && param.out != null){
             ResultList list = new ResultList();
             List<String> logFiles = getLogFiles(param);
@@ -233,13 +217,14 @@ class InfectStatistic {
         }
         print(param.out);
     }
-/**
- *@描述  控制台测试输出输出（-out对应文件的内容）
- *@参数  String outPath
- *@返回值  void
- *@创建人  221701101林露
- *@创建时间  2020/2/16
- */
+
+    /**
+     *@描述  控制台测试输出输出（-out对应文件的内容）
+     *@参数  String outPath
+     *@返回值  void
+     *@创建人  221701101林露
+     *@创建时间  2020/2/16
+     */
     public  static void print(String outPath){
         File file = new File(outPath);
         if(file.isFile()) {
@@ -303,7 +288,6 @@ class InfectStatistic {
                     }
             }
             bw.write("// 该文档并非真实数据，仅供测试使用\n");
-            bw.write("// 命令：" + parameters.getArgsString() + "\n");
             bw.close();
         }catch(IOException e){
             e.printStackTrace();
@@ -311,8 +295,8 @@ class InfectStatistic {
     }
 
     /**
-     *@描述  根据文件名读取相关日志文件，每次读取一行，将该行转化为Result类，最后返回Result集合
-     *@参数  String fileName
+     *@描述  根据日志文件路径读取相关日志，每次读取一行，匹配相应的正则表达式，实现对应type患者数量增减
+     *@参数  String logPath,List<Result> resultList
      *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
@@ -325,7 +309,6 @@ class InfectStatistic {
             BufferedReader reader = null;
             try{
                 reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
-                //reader = new BufferedReader(new FileReader(file));
                 String currentLine = null;
                 while((currentLine = reader.readLine()) != null){
                    // 1、<省> 新增 感染患者 n人
@@ -369,9 +352,9 @@ class InfectStatistic {
     }
 
     /**
-     *@描述  当前行为 “<省> 新增 感染患者 n人”对应语句，将其转换为Result类，获得某省感染患者变化结果
-     *@参数  String currentLine 表示当前行
-     *@返回值  Reesult
+     *@描述  当前行为 “<省> 新增 感染患者 n人”对应语句，相应增加某省感染患者的数量
+     *@参数  String currentLine ，List<Result> provincesResult
+     *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
@@ -393,9 +376,9 @@ class InfectStatistic {
         return provincesResult;
     }
     /**
-     *@描述  当前行为 “<省> 新增 疑似患者 n人”对应语句，将其转换为Result类，获得某省疑似患者变化结果
-     *@参数  String currentLine 表示当前行
-     *@返回值  Result
+     *@描述  当前行为 “<省> 新增 疑似患者 n人”对应语句，相应增加某省疑似患者的数量
+     *@参数  String currentLine，List<Result> provincesResult
+     *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
@@ -417,9 +400,9 @@ class InfectStatistic {
         return provincesResult;
     }
     /**
-     *@描述  当前行为 “<省> 治愈 n人”对应语句，将其转换为Result类，获得某省治愈患者变化结果
-     *@参数  String currentLine 当前行
-     *@返回值  Result
+     *@描述  当前行为 “<省> 治愈 n人”对应语句，相应增加某省治愈患者的数量
+     *@参数  String currentLine ，List<Result> provincesResult
+     *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
@@ -443,9 +426,9 @@ class InfectStatistic {
         return provincesResult;
     }
     /**
-     *@描述  当前行为 “<省> 死亡 n人”对应语句，将其转换为Result类，获得某省死亡患者变化结果
-     *@参数  String currentLine
-     *@返回值  Result
+     *@描述  当前行为 “<省> 死亡 n人”对应语句，相应增加某省死亡患者的数量
+     *@参数  String currentLine,List<Result> provincesResult
+     *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
@@ -470,8 +453,8 @@ class InfectStatistic {
     }
 
     /**
-     *@描述 当前行为 “<省1> 感染患者 流入 <省2> n人”对应语句，将其转换为Result类，获得两省感染患者变化结果
-     *@参数 String currentLine 当前行
+     *@描述 当前行为 “<省1> 感染患者 流入 <省2> n人”对应语句，相应增加或减少某省感染患者的数量
+     *@参数 String currentLine ,List<Result> provincesResult
      *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
@@ -499,8 +482,8 @@ class InfectStatistic {
         return provincesResult;
     }
     /**
-     *@描述 当前行为 “<省1> 疑似患者 流入 <省2> n人”对应语句，将其转换为Result类，获得两省疑似患者变化结果
-     *@参数  String currentLine
+     *@描述 当前行为 “<省1> 疑似患者 流入 <省2> n人”对应语句，相应增加或减少某省疑似患者的数量
+     *@参数  String currentLine,List<Result> provincesResult
      *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
@@ -529,9 +512,9 @@ class InfectStatistic {
     }
 
     /**
-     *@描述 当前行为 “<省> 疑似患者 确诊感染 n人”对应语句，将其转换为Result类，获得某省疑似患者、感染患者变化结果
-     *@参数  String currentLine
-     *@返回值  Result
+     *@描述 当前行为 “<省> 疑似患者 确诊感染 n人”对应语句，相应减少某省疑似患者、增加感染患者的数量
+     *@参数  String currentLine,List<Result> provincesResult
+     *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
@@ -556,9 +539,9 @@ class InfectStatistic {
     }
 
     /**
-     *@描述  当前行为 “<省> 排除 疑似患者 n人”对应语句，将其转换为Result类，获得某省疑似患者变化结果
-     *@参数  String currentLine
-     *@返回值  Result
+     *@描述  当前行为 “<省> 排除 疑似患者 n人”对应语句，相应减少某省疑似患者的数量
+     *@参数  String currentLine,List<Result> provincesResult
+     *@返回值  List<Result>
      *@创建人  221701101林露
      *@创建时间  2020/2/13
      */
@@ -611,7 +594,14 @@ class InfectStatistic {
         return logFiles;
     }
 
-    public static Parameters ParseOptions(String[] args) {
+    /**
+     *@描述  解析命令行参数，并保存在Parameter中
+     *@参数  String[] args
+     *@返回值  Parameter
+     *@创建人  221701101林露
+     *@创建时间  2020/2/14
+     */
+    public static Parameters parseOptions(String[] args) {
         Parameters parameters = new Parameters();
         parameters.setArgs(args);
         ArrayList<String> typeList = new ArrayList<>();
@@ -625,11 +615,9 @@ class InfectStatistic {
                 i++;
             } else if (args[i].equals("-date")) {
                 if (i == args.length - 1)
-                    //parameters.date = "default";
                     continue;
                 else {
                     if (args[i + 1].substring(0, 1).equals("-"))
-                        //parameters.date="default";
                         continue;
                     else {
                         parameters.date = args[i + 1];

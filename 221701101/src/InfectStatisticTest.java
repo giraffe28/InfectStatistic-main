@@ -222,11 +222,11 @@ public class InfectStatisticTest {
         String[] array3 = command3.split("\\s+");
         String[] array4 = command4.split("\\s+");
         String[] array5 = command5.split("\\s+");
-        InfectStatistic.Parameters parameter1 = InfectStatistic.ParseOptions(array1);
-        InfectStatistic.Parameters parameter2 = InfectStatistic.ParseOptions(array2);
-        InfectStatistic.Parameters parameter3 = InfectStatistic.ParseOptions(array3);
-        InfectStatistic.Parameters parameter4 = InfectStatistic.ParseOptions(array4);
-        InfectStatistic.Parameters parameter5 = InfectStatistic.ParseOptions(array5);
+        InfectStatistic.Parameters parameter1 = InfectStatistic.parseOptions(array1);
+        InfectStatistic.Parameters parameter2 = InfectStatistic.parseOptions(array2);
+        InfectStatistic.Parameters parameter3 = InfectStatistic.parseOptions(array3);
+        InfectStatistic.Parameters parameter4 = InfectStatistic.parseOptions(array4);
+        InfectStatistic.Parameters parameter5 = InfectStatistic.parseOptions(array5);
         Assert.assertEquals("log: D:/log/ out: D:/output.txt date: 2020-01-22 type: province: ", parameter1.getParameterString());
         Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: province: ", parameter2.getParameterString());
         Assert.assertEquals("log: D:/log/ out: D:/output.txt date: type: province: ", parameter3.getParameterString());
